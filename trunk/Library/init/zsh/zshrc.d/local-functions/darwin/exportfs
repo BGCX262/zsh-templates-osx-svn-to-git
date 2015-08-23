@@ -1,0 +1,69 @@
+#!/bin/zsh -f
+
+# Parts of this come from Apple's NFS startup file, modified
+# by W. G. Scott and many important improvements were then
+# added by Gary Kerbaugh.  Specifically, the script now checks
+# for successful outcome of disk arbitration, which can take
+# awhile for really big disks and RAID devices.
+
+# This is a stopgap replacement for exportfs, which is not
+# available on OS X.  If the user has in fact installed it, or
+# if it appears in the future, this script warns the user and
+# gives her or him a chance to bail.
+
+print ""
+print " This shell script mimics the \"exportfs -a\" command"
+print " on more canonical unix systems."
+print ""
+
+# emulation of the unix exportfs command for OS X
+
+# Look for a real exportfs and warn the user if we find one:
+
+if [[ -x $(whereis exportfs) ]];then
+  print "There appears to be a real exportfs command in $(whereis exportfs)"
+  print "You probably will want to use that instead of this limited zsh function."
+  print "If so, type \"unfunction exportfs\" and then use the real command."
+  print "Type control-C now to terminate this function, or do nothing to continue."
+  sleep 20
+fi
+
+ 
+
+# Robbed from /System/Library/StartupItems/NFS/NFS
+
+
+
+
+		# For 10.5 and later
+
+		if [[ -f /etc/exports ]];then
+			 print "Issuing the command \e[1m sudo /sbin/nfsd restart \e[0m "
+			 print ""
+			 sudo /sbin/nfsd restart
+			 print ""
+			 sleep 2
+			 print "Issuing the command \e[1m sudo /sbin/nfsd status \e[0m "
+			 print ""
+			 sudo /sbin/nfsd status 
+			 print ""
+			 sleep 2
+			 print "Issuing the command \e[1m showmount -e \e[0m "
+			 print "There will be a 20 second delay to allow equilibration and disk arbitration ... "
+			 print " "
+			 sleep 20
+			 showmount -e
+			 print " "
+			 print "This should match what is in your \e[1m /etc/exports \e[0m file:"
+			 cat /etc/exports
+			 return 0
+		
+		else
+			print "\e[1m You must create an \e[0m /etc/exports \e[1m file and put something in it. \e[0m "
+			print ""
+			return 100
+		fi
+
+
+
+ 
